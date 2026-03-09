@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Push & Plank Pro</title>
+    <title>Best Habits</title>
+    <!-- Chart.js beemelése a grafikonhoz -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --bg-color: #000000;
@@ -43,18 +45,9 @@
         
         /* Felső státuszsáv */
         .top-bar {
-            display: flex;
-            justify-content: space-between;
-            background-color: #2c2c2e;
-            padding: 12px 20px;
-            border-radius: 16px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-            position: sticky;
-            top: 10px;
-            z-index: 100;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.1);
+            display: flex; justify-content: space-between; background-color: #2c2c2e; padding: 12px 20px;
+            border-radius: 16px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            position: sticky; top: 10px; z-index: 100; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);
         }
         .top-stat { display: flex; flex-direction: column; align-items: center; }
         .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 4px; }
@@ -62,228 +55,97 @@
 
         /* Kártyák és Képernyők */
         .screen {
-            display: none;
-            animation: fadeIn 0.3s ease-in-out;
-            background-color: var(--card-bg);
-            border-radius: 20px;
-            padding: 24px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-            flex-grow: 1;
-            flex-direction: column;
+            display: none; animation: fadeIn 0.3s ease-in-out; background-color: var(--card-bg);
+            border-radius: 20px; padding: 24px; box-shadow: 0 8px 20px rgba(0,0,0,0.4); flex-grow: 1; flex-direction: column;
         }
         .screen.active { display: flex; }
-        
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         /* Animáció Konténer */
         .anim-container {
-            width: 100%;
-            aspect-ratio: 4/3;
-            background-color: #000000;
-            border-radius: 16px;
-            overflow: hidden;
-            margin-bottom: 20px;
-            border: 1px solid #333;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
+            width: 100%; aspect-ratio: 4/3; background-color: #000000; border-radius: 16px;
+            overflow: hidden; margin-bottom: 20px; border: 1px solid #333; display: flex; align-items: center; justify-content: center; position: relative;
         }
         .anim-container img { width: 100%; height: 100%; object-fit: contain; }
         .placeholder { display: none; flex-direction: column; color: var(--text-muted); font-size: 14px; text-align: center; padding: 20px; }
 
         .progress-text { text-align: center; font-size: 14px; color: var(--text-muted); margin-bottom: 15px; font-weight: 600; letter-spacing: 0.5px; }
-        
         .title-area { display: flex; align-items: center; margin-bottom: 20px; }
-        .icon {
-            font-size: 32px;
-            margin-right: 15px;
-            background: #2c2c2e;
-            padding: 12px;
-            border-radius: 14px;
-            min-width: 56px;
-            text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
+        .icon { font-size: 32px; margin-right: 15px; background: #2c2c2e; padding: 12px; border-radius: 14px; min-width: 56px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         .title-area h3 { margin: 0 0 6px 0; font-size: 22px; line-height: 1.2; }
-        
-        .reps-badge {
-            display: inline-block;
-            background-color: #3a3a3c;
-            color: #e5e5ea;
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: bold;
-        }
-        
-        .details-box {
-            background-color: #2c2c2e;
-            padding: 16px;
-            border-radius: 14px;
-            font-size: 16px;
-            line-height: 1.6;
-            color: #d1d1d6;
-            margin-bottom: 25px;
-            border-left: 4px solid var(--accent);
-        }
+        .reps-badge { display: inline-block; background-color: #3a3a3c; color: #e5e5ea; padding: 6px 12px; border-radius: 8px; font-size: 14px; font-weight: bold; }
+        .details-box { background-color: #2c2c2e; padding: 16px; border-radius: 14px; font-size: 16px; line-height: 1.6; color: #d1d1d6; margin-bottom: 25px; border-left: 4px solid var(--accent); }
 
         /* Gombok */
         .nav-buttons { display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-top: auto; }
-        
-        .btn-main {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            padding: 18px;
-            border-radius: 16px;
-            font-size: 18px;
-            font-weight: bold;
-            color: white;
-            border: none;
-            cursor: pointer;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            background-color: var(--accent);
-            transition: transform 0.1s;
-        }
+        .btn-main { display: flex; align-items: center; justify-content: center; width: 100%; padding: 18px; border-radius: 16px; font-size: 18px; font-weight: bold; color: white; border: none; cursor: pointer; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.3); background-color: var(--accent); transition: transform 0.1s; }
         .btn-main:active { transform: scale(0.98); opacity: 0.9; }
         .btn-start { background-color: var(--success); font-size: 20px; }
-        
-        .btn-text {
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            font-size: 16px;
-            padding: 15px;
-            cursor: pointer;
-            white-space: nowrap;
-            width: 100%;
-        }
-        
-        .btn-timer {
-            background-color: #3a3a3c;
-            color: white;
-            border: 1px solid #555;
-            padding: 16px;
-            border-radius: 14px;
-            font-size: 18px;
-            font-weight: bold;
-            width: 100%;
-            margin-bottom: 25px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
+        .btn-text { background: transparent; border: none; color: var(--text-muted); font-size: 16px; padding: 15px; cursor: pointer; white-space: nowrap; width: 100%; }
+        .btn-timer { background-color: #3a3a3c; color: white; border: 1px solid #555; padding: 16px; border-radius: 14px; font-size: 18px; font-weight: bold; width: 100%; margin-bottom: 25px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .timer-display { text-align: center; font-size: 32px; font-weight: bold; margin-bottom: 25px; color: var(--success); display: none; }
         
         /* BEVITELI MEZŐK */
         .input-group { margin-bottom: 20px; text-align: left; }
         .input-label { display: block; margin-bottom: 8px; color: var(--text-muted); font-size: 14px; font-weight: 600; margin-left: 4px; }
-        
-        .input-field {
-            background-color: var(--input-bg);
-            border: 2px solid transparent;
-            color: white;
-            padding: 16px;
-            border-radius: 14px;
-            font-size: 18px;
-            width: 100%;
-            outline: none;
-            box-sizing: border-box;
-            transition: border-color 0.2s;
-        }
+        .input-field { background-color: var(--input-bg); border: 2px solid transparent; color: white; padding: 16px; border-radius: 14px; font-size: 18px; width: 100%; outline: none; box-sizing: border-box; transition: border-color 0.2s; }
         .input-field:focus { border-color: var(--accent); background-color: #3a3a3c; }
-        .input-field::placeholder { color: #555; }
 
         /* Pihenőidő */
         #rest-screen { text-align: center; background-color: #0d1117; justify-content: center; }
-        .rest-timer-circle {
-            width: 180px; height: 180px;
-            border-radius: 50%;
-            border: 8px solid var(--rest);
-            display: flex; align-items: center; justify-content: center;
-            margin: 20px auto 40px auto;
-            font-size: 60px; font-weight: bold; color: var(--rest);
-            box-shadow: 0 0 20px rgba(94, 92, 230, 0.2);
-        }
+        .rest-timer-circle { width: 180px; height: 180px; border-radius: 50%; border: 8px solid var(--rest); display: flex; align-items: center; justify-content: center; margin: 20px auto 40px auto; font-size: 60px; font-weight: bold; color: var(--rest); box-shadow: 0 0 20px rgba(94, 92, 230, 0.2); }
         
         /* Előzmények / Súlynapló Lista */
-        .history-list { flex-grow: 1; overflow-y: auto; text-align: left; margin-top: 20px; padding-right: 5px; }
-        .history-item { 
-            background: #2c2c2e; padding: 16px; margin-bottom: 12px; border-radius: 14px; 
-            display: flex; justify-content: space-between; align-items: center; 
-            border: 1px solid #3a3a3c;
-        }
+        .history-list { flex-grow: 1; overflow-y: auto; text-align: left; margin-top: 10px; padding-right: 5px; }
+        .history-item { background: #2c2c2e; padding: 16px; margin-bottom: 12px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #3a3a3c; }
         .history-date { font-weight: bold; color: var(--text-main); font-size: 16px; display: block; margin-bottom: 4px; }
         .history-stats { font-size: 14px; color: var(--text-muted); }
-        
-        /* Külön stílus a súlynapló változás jelzőjének */
         .weight-change { font-size: 14px; font-weight: bold; margin-left: 8px; }
         .weight-down { color: var(--success); }
         .weight-up { color: var(--red); }
         .weight-same { color: var(--text-muted); }
-
-        .btn-delete {
-            background-color: rgba(255, 69, 58, 0.15); 
-            color: var(--red); border: 1px solid rgba(255, 69, 58, 0.3); border-radius: 10px;
-            padding: 10px 14px; cursor: pointer; font-size: 18px;
-        }
+        .btn-delete { background-color: rgba(255, 69, 58, 0.15); color: var(--red); border: 1px solid rgba(255, 69, 58, 0.3); border-radius: 10px; padding: 10px 14px; cursor: pointer; font-size: 18px; }
         
         /* Login */
         .user-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 30px; width: 100%; }
-        .user-card { 
-            background: #2c2c2e; padding: 20px; border-radius: 16px; text-align: left; 
-            display: flex; justify-content: space-between; align-items: center; cursor: pointer;
-            border: 2px solid transparent; transition: all 0.2s;
-        }
+        .user-card { background: #2c2c2e; padding: 20px; border-radius: 16px; text-align: left; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; }
         .user-card:active { transform: scale(0.98); background: #3a3a3c; }
         .user-name { font-weight: bold; font-size: 20px; }
-        
-        .current-user-badge {
-            display: inline-block; background: var(--purple); color: white; padding: 6px 14px;
-            border-radius: 20px; font-size: 14px; font-weight: bold; margin-bottom: 20px;
-            box-shadow: 0 4px 10px rgba(191, 90, 242, 0.3);
-        }
-
-        /* Statisztikák */
-        .summary-stat { margin: 15px 0; font-size: 18px; border-bottom: 1px solid #333; padding-bottom: 15px; display: flex; justify-content: space-between; }
-        .summary-stat:last-child { border-bottom: none; }
+        .current-user-badge { display: inline-block; background: var(--purple); color: white; padding: 6px 14px; border-radius: 20px; font-size: 14px; font-weight: bold; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(191, 90, 242, 0.3); }
 
         /* Súly input és gomb konténer */
-        .weight-input-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .btn-icon {
-            background-color: #3a3a3c;
-            border: none;
-            color: white;
-            border-radius: 14px;
-            padding: 15px;
-            font-size: 20px;
-            cursor: pointer;
-            border: 1px solid #555;
-        }
+        .weight-input-container { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .btn-icon { background-color: #3a3a3c; border: none; color: white; border-radius: 14px; padding: 15px; font-size: 20px; cursor: pointer; border: 1px solid #555; }
         .btn-icon:active { background-color: var(--accent); border-color: var(--accent); }
 
-        /* MOBIL OPTIMALIZÁLÁS */
+        /* HETI AKTIVITÁS KÖVETŐ */
+        .weekly-tracker { display: flex; justify-content: space-between; background: #2c2c2e; padding: 15px; border-radius: 16px; margin-bottom: 30px; width: 100%; border: 1px solid #3a3a3c; }
+        .day-circle { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .day-label { font-size: 12px; color: var(--text-muted); font-weight: bold; }
+        .circle { width: 34px; height: 34px; border-radius: 50%; background: #1c1c1e; border: 2px solid #444; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: all 0.3s; }
+        .circle.done { background: var(--success); border-color: var(--success); color: #000; box-shadow: 0 0 10px rgba(48, 209, 88, 0.4); }
+        .circle.today { border-color: var(--accent); }
+        
+        /* Grafikon Konténer */
+        .chart-container {
+            width: 100%;
+            height: 200px;
+            background-color: #2c2c2e;
+            border-radius: 16px;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #3a3a3c;
+            display: none; /* Alapból rejtve, ha nincs elég adat */
+        }
+
         @media (max-width: 480px) {
             .app-container { padding: 12px; padding-bottom: 30px; }
             .screen { padding: 20px; border-radius: 24px; }
             h1 { font-size: 28px; }
-            h2 { font-size: 24px; }
             .anim-container { aspect-ratio: 1/1; max-height: 350px; }
             .btn-main { font-size: 18px; padding: 16px; }
-            .details-box { font-size: 15px; padding: 14px; margin-bottom: 20px; }
-            .title-area h3 { font-size: 20px; }
-            .icon { padding: 10px; font-size: 28px; }
+            .circle { width: 30px; height: 30px; font-size: 14px; }
+            .chart-container { height: 180px; }
         }
     </style>
 </head>
@@ -308,24 +170,20 @@
         <p style="color: var(--text-muted); margin-bottom: 40px; font-size: 16px;">Válaszd ki a profilodat:</p>
         
         <div id="user-list" class="user-list"></div>
-        
         <button class="btn-text" onclick="showCreateUser()" style="color: var(--accent); font-weight: bold; margin-top: auto;">+ Új profil létrehozása</button>
     </div>
 
     <!-- ÚJ FELHASZNÁLÓ LÉTREHOZÁSA -->
     <div id="create-user-screen" class="screen" style="text-align: center;">
         <h2 style="margin-bottom: 30px; margin-top: 10px;">Új Profil 👤</h2>
-        
         <div class="input-group">
             <label class="input-label">Név</label>
             <input type="text" id="new-username" class="input-field" placeholder="Pl. Peti">
         </div>
-
         <div class="input-group">
             <label class="input-label">Testsúly (kg)</label>
             <input type="number" id="new-userweight" class="input-field" placeholder="Pl. 75" inputmode="numeric">
         </div>
-
         <div style="margin-top: auto;">
             <button class="btn-main btn-start" onclick="createNewUser()" style="margin-bottom: 15px; box-shadow: 0 4px 15px rgba(48, 209, 88, 0.3);">Mentés és Belépés</button>
             <button class="btn-text" onclick="showLogin()" style="color: var(--text-muted);">Mégse</button>
@@ -336,12 +194,12 @@
     <div id="start-screen" class="screen" style="text-align: center; justify-content: center;">
         <div>
             <div class="current-user-badge" id="current-user-name">Felhasználó</div>
-            <h1 style="margin-top: 5px; font-size: 32px; margin-bottom: 10px;">Push & Plank Pro</h1>
-            <p style="color: var(--text-muted); margin-bottom: 30px; font-size: 16px;">Bemelegítés + 3 Kör + Nyújtás</p>
+            <h1 style="margin-top: 5px; font-size: 36px; margin-bottom: 10px; color: var(--accent);">Best Habits</h1>
             
-            <div style="font-size: 70px; margin-bottom: 20px;">💪</div>
+            <div class="weekly-tracker" id="weekly-tracker"></div>
             
-            <!-- Súly módosítási lehetőség és mentés -->
+            <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 15px;">Bemelegítés + 3 Kör + Nyújtás</p>
+            
             <label for="user-weight" style="display: block; margin-bottom: 10px; color: var(--text-muted); font-size: 14px;">Jelenlegi súlyod:</label>
             <div class="weight-input-container">
                 <div style="position: relative; display: inline-block; width: 120px;">
@@ -355,8 +213,8 @@
         <div style="margin-top: auto; width: 100%;">
             <button class="btn-main btn-start" onclick="startWorkout()" style="margin-bottom: 15px; box-shadow: 0 0 20px rgba(48, 209, 88, 0.4);">▶️ EDZÉS INDÍTÁSA</button>
             <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                <button class="btn-text" onclick="showHistory()" style="width: auto; flex-grow: 1;">📜 Edzésnapló</button>
-                <button class="btn-text" onclick="showWeightHistory()" style="width: auto; flex-grow: 1;">⚖️ Súlynapló</button>
+                <button class="btn-text" onclick="showHistory()" style="width: auto; flex-grow: 1; background: #2c2c2e; border-radius: 12px;">📜 Edzésnapló</button>
+                <button class="btn-text" onclick="showWeightHistory()" style="width: auto; flex-grow: 1; background: #2c2c2e; border-radius: 12px;">⚖️ Súlynapló</button>
             </div>
             <button class="btn-text" onclick="logout()" style="color: var(--red); margin-top: 15px;">Kijelentkezés</button>
         </div>
@@ -376,22 +234,24 @@
     <!-- EDZÉS ELŐZMÉNYEK KÉPERNYŐ -->
     <div id="history-screen" class="screen">
         <h2 style="margin-bottom: 20px;">📜 Edzésnapló</h2>
-        <div class="history-list" id="history-list">
-            <p style="text-align: center; color: var(--text-muted); margin-top: 50px;">Még nincs mentett edzésed.</p>
-        </div>
+        <div class="history-list" id="history-list"></div>
         <button class="btn-main" onclick="closeHistory()" style="background-color: #3a3a3c; margin-top: 20px;">🔙 Vissza</button>
     </div>
 
-    <!-- SÚLYNAPLÓ KÉPERNYŐ -->
+    <!-- SÚLYNAPLÓ KÉPERNYŐ (Bővítve a grafikonnal) -->
     <div id="weight-history-screen" class="screen">
-        <h2 style="margin-bottom: 20px;">⚖️ Súlynapló</h2>
-        <div class="history-list" id="weight-history-list">
-            <!-- Itt jelennek meg a súly adatok -->
+        <h2 style="margin-bottom: 10px;">⚖️ Súlynapló</h2>
+        
+        <!-- Ide rajzolja a diagramot a Chart.js -->
+        <div class="chart-container" id="weight-chart-container">
+            <canvas id="weightChart"></canvas>
         </div>
+
+        <div class="history-list" id="weight-history-list"></div>
         <button class="btn-main" onclick="closeHistory()" style="background-color: #3a3a3c; margin-top: 20px;">🔙 Vissza</button>
     </div>
 
-    <!-- GYAKORLATOK GENERÁLT HELYE -->
+    <!-- GYAKORLATOK KÁRTYÁI -->
     <div id="exercise-container"></div>
 
     <!-- ÖSSZEGZÉS KÉPERNYŐ -->
@@ -399,7 +259,7 @@
         <div style="text-align: center;">
             <div style="font-size: 80px; margin-bottom: 20px;">🏆</div>
             <h2 style="margin-top: 0; font-size: 32px; margin-bottom: 10px;">Szép munka volt!</h2>
-            <p style="color: var(--text-muted); font-size: 16px;">Edzés sikeresen rögzítve a naplóban.</p>
+            <p style="color: var(--text-muted); font-size: 16px;">Mai nap pipálva, edzés rögzítve! ✔️</p>
             
             <div class="details-box" style="margin-top: 30px; border-left: none; border-top: 4px solid var(--success);">
                 <p class="summary-stat"><span>Teljesített körök:</span> <strong id="summary-rounds" style="color: var(--accent);"></strong></p>
@@ -407,7 +267,6 @@
                 <p class="summary-stat" style="margin-bottom: 0;"><span>Elégetett kalória:</span> <strong id="summary-calories" style="color: var(--red);"></strong></p>
             </div>
         </div>
-        
         <button class="btn-main" onclick="location.reload()" style="background-color: #3a3a3c; margin-top: 30px;">🔄 Vissza a kezdőlapra</button>
     </div>
 
@@ -415,13 +274,10 @@
 
 <script>
     // --- ADATBÁZIS: GYAKORLATOK LISTÁJA ---
-    const exercises = [
-        // Bemelegítés (1-3)
+    const exercises =[
         { id: 1, name: "Karkörzés", icon: "🔄", gif: "armcircles.gif", reps: "30 másodperc", desc: "Nagy körzések előre és hátra. Lazítsd el a vállaidat!", type: "warmup", time: 30 },
         { id: 2, name: "Törzscsavarás", icon: "🌪️", gif: "torsotwist.gif", reps: "30 másodperc", desc: "Dinamikus törzscsavarás állva. A csípőd maradjon előre nézve.", type: "warmup", time: 30 },
         { id: 3, name: "Álló Térd-Könyök", icon: "🕺", gif: "kneetoelbow.gif", reps: "30 másodperc", desc: "Ellentétes térd és könyök érintése. Feszítsd a hasad!", type: "warmup", time: 30 },
-        
-        // Fő Edzés (Újraindul 1-től)
         { id: 1, name: "Guggolás", icon: "🦵", gif: "squat.gif", reps: "20-25 ismétlés", desc: "Egyenes hát, sarok a földön. Comb vízszintesig le.", type: "main" },
         { id: 2, name: "Klasszikus Fekvő", icon: "💪", gif: "pushup.gif", reps: "10-15 ismétlés", desc: "Egyenes törzs, mellkas a talajig. Könyökök ne álljanak kifelé!", type: "main" },
         { id: 3, name: "Hegymászás", icon: "🧗‍♂️", gif: "climber.gif", reps: "40 ismétlés", desc: "Gyors térdhúzások fekvőtámaszban. Csípő stabil.", type: "main" },
@@ -432,120 +288,63 @@
         { id: 8, name: "Térdelő Fekvő", icon: "🙏", gif: "kneepushup.gif", reps: "Max ismétlés", desc: "Kifulladásig végzett könnyített fekvő. Égesd ki az izmot!", type: "main" },
         { id: 9, name: "Plank", icon: "🛡️", gif: "plank.gif", reps: "45-60 másodperc", desc: "Alkartámasz, feszített has és fenék. Ne essen be a derekad!", type: "main", time: 45 },
         { id: 10, name: "Madárkutya", icon: "🐕", gif: "birddog.gif", reps: "10-10 ismétlés", desc: "Ellentétes kar-láb nyújtás térdelve. Tartsd meg 1 másodpercig.", type: "main" },
-        
-        // Nyújtás (Újraindul 1-től)
         { id: 1, name: "Mellkas Nyújtás", icon: "🧘‍♂️", gif: "cheststretch.gif", reps: "30 másodperc", desc: "Kezek összekulcsolva a hát mögött. Emeld a kezed, nyisd a mellkasod.", type: "cooldown", time: 30 },
         { id: 2, name: "Combnyújtás", icon: "🦩", gif: "quadstretch.gif", reps: "30 mp / láb", desc: "Sarok húzása a fenékhez állva. Térdek zárva.", type: "cooldown", time: 30 },
         { id: 3, name: "Váll Nyújtás", icon: "🫂", gif: "shoulderstretch.gif", reps: "30 mp / kar", desc: "Kar keresztbe húzása a mellkas előtt. Óvatosan húzd rá.", type: "cooldown", time: 30 }
     ];
 
-    // --- VÁLTOZÓK ---
-    let currentUser = null; 
-    let users = []; 
-    
-    let currentExerciseIndex = 0; 
-    let currentRound = 1;
-    const totalRounds = 3; 
-    
-    let workoutStartTime = null;
-    let mainTimerInterval = null;
-    let exerciseTimer = null;
-    let restTimer = null;
-    let restCallback = null;
-    
+    let currentUser = null; let users =[]; 
+    let currentExerciseIndex = 0; let currentRound = 1; const totalRounds = 3; 
+    let workoutStartTime = null; let mainTimerInterval = null; let exerciseTimer = null; let restTimer = null; let restCallback = null;
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     
-    // --- BETÖLTÉS ---
+    // Globális változó a grafikonnak (hogy később frissíteni tudjuk)
+    let weightChartInstance = null;
+
+    function getDayIndex(date) { let day = date.getDay(); return day === 0 ? 6 : day - 1; }
+    function getWeekId(date) { const d = new Date(date); const day = d.getDay(); const diff = d.getDate() - day + (day === 0 ? -6 : 1); d.setDate(diff); return d.toLocaleDateString('hu-HU'); }
+
     window.onload = function() {
-        loadUsers();
-        generateExerciseCards();
-        if(users.length === 0) showCreateUser();
-        else renderUserList();
+        loadUsers(); generateExerciseCards();
+        if(users.length === 0) showCreateUser(); else renderUserList();
     };
 
-    // --- FELHASZNÁLÓ KEZELÉS ---
-    function loadUsers() { users = JSON.parse(localStorage.getItem('ppp_users')) || []; }
+    function loadUsers() { users = JSON.parse(localStorage.getItem('ppp_users')) ||[]; }
     function saveUsers() { localStorage.setItem('ppp_users', JSON.stringify(users)); }
 
     function renderUserList() {
-        const list = document.getElementById('user-list');
-        list.innerHTML = "";
-        users.forEach(user => {
-            list.innerHTML += `
-            <div class="user-card" onclick="loginUser('${user.id}')">
-                <span class="user-name">${user.name}</span>
-                <span style="color: var(--text-muted); font-size: 16px;">${user.weight} kg</span>
-            </div>`;
-        });
+        const list = document.getElementById('user-list'); list.innerHTML = "";
+        users.forEach(user => { list.innerHTML += `<div class="user-card" onclick="loginUser('${user.id}')"><span class="user-name">${user.name}</span><span style="color: var(--text-muted); font-size: 16px;">${user.weight} kg</span></div>`; });
         showScreen('login-screen');
     }
 
-    function showCreateUser() { 
-        document.getElementById('new-username').value = "";
-        document.getElementById('new-userweight').value = "";
-        showScreen('create-user-screen'); 
-    }
-    function showLogin() { 
-        if(users.length === 0) showCreateUser();
-        else renderUserList(); 
-    }
+    function showCreateUser() { document.getElementById('new-username').value = ""; document.getElementById('new-userweight').value = ""; showScreen('create-user-screen'); }
+    function showLogin() { if(users.length === 0) showCreateUser(); else renderUserList(); }
 
     function createNewUser() {
-        const name = document.getElementById('new-username').value;
-        const weight = parseFloat(document.getElementById('new-userweight').value);
+        const name = document.getElementById('new-username').value; const weight = parseFloat(document.getElementById('new-userweight').value);
         if(!name || !weight) { alert("Kérlek töltsd ki a mezőket!"); return; }
-        
         const newUser = { id: 'user_' + Date.now(), name: name, weight: weight };
-        users.push(newUser);
-        saveUsers();
-        
-        // Automatikusan bejelentkeztetjük és mentjük az első súly adatot
-        loginUser(newUser.id);
-        saveWeightToHistory(weight);
+        users.push(newUser); saveUsers(); loginUser(newUser.id); saveWeightToHistory(weight);
     }
 
     function loginUser(id) {
-        currentUser = users.find(u => u.id === id);
-        if(!currentUser) return;
-        document.getElementById('current-user-name').innerText = currentUser.name;
-        document.getElementById('user-weight').value = currentUser.weight;
-        showScreen('start-screen');
+        currentUser = users.find(u => u.id === id); if(!currentUser) return;
+        document.getElementById('current-user-name').innerText = currentUser.name; document.getElementById('user-weight').value = currentUser.weight;
+        renderWeeklyTracker(); showScreen('start-screen');
     }
 
     function updateUserWeight() {
-        if(!currentUser) return;
-        const newWeight = parseFloat(document.getElementById('user-weight').value);
-        if(newWeight > 0) {
-            currentUser.weight = newWeight;
-            const index = users.findIndex(u => u.id === currentUser.id);
-            if(index !== -1) { users[index] = currentUser; saveUsers(); }
-        }
+        if(!currentUser) return; const newWeight = parseFloat(document.getElementById('user-weight').value);
+        if(newWeight > 0) { currentUser.weight = newWeight; const index = users.findIndex(u => u.id === currentUser.id); if(index !== -1) { users[index] = currentUser; saveUsers(); } }
     }
-
     function logout() { currentUser = null; renderUserList(); }
 
-    // --- ALAP RENDSZER ---
     function generateExerciseCards() {
-        const container = document.getElementById('exercise-container');
-        container.innerHTML = "";
+        const container = document.getElementById('exercise-container'); container.innerHTML = "";
         exercises.forEach((ex, index) => {
             let timerBtn = ex.time ? `<button class="btn-timer" onclick="startExerciseTimer(${ex.time}, this)">⏱️ Stopper Indítása (${ex.time} mp)</button><div class="timer-display"></div>` : '';
-            
-            let html = `
-            <div id="card-${index}" class="screen exercise-card">
-                <div class="progress-text" id="progress-text-${index}"></div>
-                <div class="anim-container">
-                    <img src="${ex.gif}" alt="${ex.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                    <div class="placeholder">⚠️ Hiányzó: <strong style="color: var(--accent);">${ex.gif}</strong></div>
-                </div>
-                <div class="title-area"><div class="icon">${ex.icon}</div><div><h3>${ex.id}. ${ex.name}</h3><span class="reps-badge">${ex.reps}</span></div></div>
-                <div class="details-box">${ex.desc}</div>
-                ${timerBtn}
-                <div class="nav-buttons">
-                    <button class="btn-text" onclick="prevStep()">⬅️ Vissza</button>
-                    <button class="btn-main btn-next" onclick="nextStep()">Kész, Tovább! ➡️</button>
-                </div>
-            </div>`;
+            let html = `<div id="card-${index}" class="screen exercise-card"><div class="progress-text" id="progress-text-${index}"></div><div class="anim-container"><img src="${ex.gif}" alt="${ex.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"><div class="placeholder">⚠️ Hiányzó: <strong style="color: var(--accent);">${ex.gif}</strong></div></div><div class="title-area"><div class="icon">${ex.icon}</div><div><h3>${ex.id}. ${ex.name}</h3><span class="reps-badge">${ex.reps}</span></div></div><div class="details-box">${ex.desc}</div>${timerBtn}<div class="nav-buttons"><button class="btn-text" onclick="prevStep()">⬅️ Vissza</button><button class="btn-main btn-next" onclick="nextStep()">Kész, Tovább! ➡️</button></div></div>`;
             container.innerHTML += html;
         });
     }
@@ -553,262 +352,235 @@
     async function startWorkout() {
         try { if ('wakeLock' in navigator) { await navigator.wakeLock.request('screen'); } } catch (err) {}
         if (audioCtx.state === 'suspended') { audioCtx.resume(); }
-
-        workoutStartTime = Date.now();
-        mainTimerInterval = setInterval(updateMainTimer, 1000);
-        
-        currentExerciseIndex = 0;
-        currentRound = 1;
-        showScreen('card-0');
-        updateTopBar();
+        workoutStartTime = Date.now(); mainTimerInterval = setInterval(updateMainTimer, 1000);
+        currentExerciseIndex = 0; currentRound = 1; showScreen('card-0'); updateTopBar();
     }
 
     function showScreen(id) {
         document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        if(id.startsWith('card') || id === 'rest-screen') { document.getElementById('top-bar').style.display = 'flex'; } 
-        else { document.getElementById('top-bar').style.display = 'none'; }
+        if(id.startsWith('card') || id === 'rest-screen') { document.getElementById('top-bar').style.display = 'flex'; } else { document.getElementById('top-bar').style.display = 'none'; }
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function updateTopBar() {
-        const ex = exercises[currentExerciseIndex];
-        let phaseLabel = "Stádium"; let phaseText = ""; let color = "";
-
-        if(ex.type === 'warmup') { phaseText = "Bemelegítés"; color = "var(--orange)"; } 
-        else if(ex.type === 'main') { phaseLabel = "Kör"; phaseText = `${currentRound} / ${totalRounds}`; color = "var(--accent)"; } 
-        else { phaseText = "Nyújtás"; color = "var(--success)"; }
-
-        document.getElementById('phase-label').innerText = phaseLabel;
-        document.getElementById('round-display').innerText = phaseText;
-        document.getElementById('round-display').style.color = color;
-        
-        const typeCount = exercises.filter(e => e.type === ex.type).length;
-        const currentInType = exercises.filter((e, i) => e.type === ex.type && i <= currentExerciseIndex).length;
+        const ex = exercises[currentExerciseIndex]; let phaseLabel = "Stádium"; let phaseText = ""; let color = "";
+        if(ex.type === 'warmup') { phaseText = "Bemelegítés"; color = "var(--orange)"; } else if(ex.type === 'main') { phaseLabel = "Kör"; phaseText = `${currentRound} / ${totalRounds}`; color = "var(--accent)"; } else { phaseText = "Nyújtás"; color = "var(--success)"; }
+        document.getElementById('phase-label').innerText = phaseLabel; document.getElementById('round-display').innerText = phaseText; document.getElementById('round-display').style.color = color;
+        const typeCount = exercises.filter(e => e.type === ex.type).length; const currentInType = exercises.filter((e, i) => e.type === ex.type && i <= currentExerciseIndex).length;
         document.getElementById(`progress-text-${currentExerciseIndex}`).innerText = `${currentInType}. Gyakorlat a ${typeCount}-ből`;
     }
 
     function nextStep() {
-        const currentEx = exercises[currentExerciseIndex];
-        const nextEx = exercises[currentExerciseIndex + 1];
-
-        if(currentEx.type === 'main' && nextEx && nextEx.type === 'main') {
-            showRestScreen(30, "Pihenj egy kicsit!", nextEx.name, () => proceedToNext());
-        } else if (currentEx.type === 'main' && (!nextEx || nextEx.type !== 'main') && currentRound < totalRounds) {
-            const firstMain = exercises.find(e => e.type === 'main');
-            showRestScreen(60, `KÖR PIHENŐ! (${currentRound}/${totalRounds})`, `Következik: ${firstMain.name}`, () => startNextRound());
-        } else {
-            proceedToNext();
-        }
+        const currentEx = exercises[currentExerciseIndex]; const nextEx = exercises[currentExerciseIndex + 1];
+        if(currentEx.type === 'main' && nextEx && nextEx.type === 'main') { showRestScreen(30, "Pihenj egy kicsit!", nextEx.name, () => proceedToNext()); } 
+        else if (currentEx.type === 'main' && (!nextEx || nextEx.type !== 'main') && currentRound < totalRounds) {
+            const firstMain = exercises.find(e => e.type === 'main'); showRestScreen(60, `KÖR PIHENŐ! (${currentRound}/${totalRounds})`, `Következik: ${firstMain.name}`, () => startNextRound());
+        } else { proceedToNext(); }
     }
 
-    function startNextRound() {
-        currentRound++;
-        currentExerciseIndex = exercises.findIndex(e => e.type === 'main');
-        showScreen(`card-${currentExerciseIndex}`);
-        updateTopBar();
-    }
-    
-    function proceedToNext() {
-        if (currentExerciseIndex < exercises.length - 1) {
-            currentExerciseIndex++;
-            showScreen(`card-${currentExerciseIndex}`);
-            updateTopBar();
-        } else {
-            finishWorkout();
-        }
-    }
-
+    function startNextRound() { currentRound++; currentExerciseIndex = exercises.findIndex(e => e.type === 'main'); showScreen(`card-${currentExerciseIndex}`); updateTopBar(); }
+    function proceedToNext() { if (currentExerciseIndex < exercises.length - 1) { currentExerciseIndex++; showScreen(`card-${currentExerciseIndex}`); updateTopBar(); } else { finishWorkout(); } }
     function prevStep() {
         const currentEx = exercises[currentExerciseIndex];
         if (currentEx.type === 'main' && exercises[currentExerciseIndex-1].type !== 'main' && currentRound > 1) {
-            currentRound--;
-            let lastMainIndex = -1;
-            for(let i=0; i<exercises.length; i++) { if(exercises[i].type === 'main') lastMainIndex = i; }
-            currentExerciseIndex = lastMainIndex;
-        } else if (currentExerciseIndex > 0) {
-            currentExerciseIndex--;
-        } else {
-            showScreen('start-screen');
-            return;
-        }
-        showScreen(`card-${currentExerciseIndex}`);
-        updateTopBar();
+            currentRound--; let lastMainIndex = -1; for(let i=0; i<exercises.length; i++) { if(exercises[i].type === 'main') lastMainIndex = i; } currentExerciseIndex = lastMainIndex;
+        } else if (currentExerciseIndex > 0) { currentExerciseIndex--; } else { showScreen('start-screen'); return; }
+        showScreen(`card-${currentExerciseIndex}`); updateTopBar();
     }
 
     function showRestScreen(seconds, title, nextName, callback) {
-        document.getElementById('rest-title').innerText = title;
-        const titleColor = (seconds === 60) ? "var(--rest-round)" : "var(--rest)";
-        document.getElementById('rest-title').style.color = titleColor;
-        document.querySelector('.rest-timer-circle').style.borderColor = titleColor;
-        document.querySelector('.rest-timer-circle').style.color = titleColor;
-        document.getElementById('next-exercise-name').innerText = nextName;
-        showScreen('rest-screen');
-        
-        restCallback = callback;
-        let timeLeft = seconds;
-        document.getElementById('rest-timer-display').innerText = timeLeft;
-        
+        document.getElementById('rest-title').innerText = title; const titleColor = (seconds === 60) ? "var(--rest-round)" : "var(--rest)";
+        document.getElementById('rest-title').style.color = titleColor; document.querySelector('.rest-timer-circle').style.borderColor = titleColor; document.querySelector('.rest-timer-circle').style.color = titleColor;
+        document.getElementById('next-exercise-name').innerText = nextName; showScreen('rest-screen'); restCallback = callback;
+        let timeLeft = seconds; document.getElementById('rest-timer-display').innerText = timeLeft;
         if (restTimer) clearInterval(restTimer);
-        restTimer = setInterval(() => {
-            timeLeft--;
-            document.getElementById('rest-timer-display').innerText = timeLeft;
-            if(timeLeft <= 3 && timeLeft > 0) { playBeep(440, 0.1); } 
-            if(timeLeft === 0) { playBeep(880, 0.5); skipRest(); }
-        }, 1000);
+        restTimer = setInterval(() => { timeLeft--; document.getElementById('rest-timer-display').innerText = timeLeft; if(timeLeft <= 3 && timeLeft > 0) { playBeep(440, 0.1); } if(timeLeft === 0) { playBeep(880, 0.5); skipRest(); } }, 1000);
     }
-
     function skipRest() { clearInterval(restTimer); if(restCallback) restCallback(); }
 
     function startExerciseTimer(seconds, btnElement) {
         if (exerciseTimer) clearInterval(exerciseTimer);
-        const display = btnElement.nextElementSibling;
-        btnElement.style.display = 'none'; display.style.display = 'block'; display.style.color = "var(--accent)";
-        let timeLeft = seconds;
-        display.textContent = `⏳ ${timeLeft} mp`; playBeep(600, 0.1);
-
-        exerciseTimer = setInterval(() => {
-            timeLeft--;
-            display.textContent = `⏳ ${timeLeft} mp`;
-            if(timeLeft <= 3 && timeLeft > 0) { playBeep(440, 0.1); } 
-            if (timeLeft <= 0) {
-                clearInterval(exerciseTimer); playBeep(880, 0.6); display.textContent = "✅ Kész!"; display.style.color = "var(--success)";
-            }
-        }, 1000);
+        const display = btnElement.nextElementSibling; btnElement.style.display = 'none'; display.style.display = 'block'; display.style.color = "var(--accent)";
+        let timeLeft = seconds; display.textContent = `⏳ ${timeLeft} mp`; playBeep(600, 0.1);
+        exerciseTimer = setInterval(() => { timeLeft--; display.textContent = `⏳ ${timeLeft} mp`; if(timeLeft <= 3 && timeLeft > 0) { playBeep(440, 0.1); } if (timeLeft <= 0) { clearInterval(exerciseTimer); playBeep(880, 0.6); display.textContent = "✅ Kész!"; display.style.color = "var(--success)"; } }, 1000);
     }
 
     function playBeep(freq, duration) {
-        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.frequency.value = freq; osc.type = "sine"; osc.start();
-        gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
-        osc.stop(audioCtx.currentTime + duration);
+        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.frequency.value = freq; osc.type = "sine"; osc.start(); gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration); osc.stop(audioCtx.currentTime + duration);
     }
 
     function updateMainTimer() {
-        let elapsed = Math.floor((Date.now() - workoutStartTime) / 1000);
-        let m = Math.floor(elapsed / 60).toString().padStart(2, '0');
-        let s = (elapsed % 60).toString().padStart(2, '0');
+        let elapsed = Math.floor((Date.now() - workoutStartTime) / 1000); let m = Math.floor(elapsed / 60).toString().padStart(2, '0'); let s = (elapsed % 60).toString().padStart(2, '0');
         document.getElementById('total-time-display').innerText = m + ':' + s;
     }
 
     function finishWorkout() {
         clearInterval(mainTimerInterval);
-        let elapsedSeconds = Math.floor((Date.now() - workoutStartTime) / 1000);
-        let m = Math.floor(elapsedSeconds / 60); let s = elapsedSeconds % 60;
-        let totalMinutes = elapsedSeconds / 60;
-        let caloriesBurned = Math.floor(0.14 * currentUser.weight * totalMinutes);
-
-        document.getElementById('summary-rounds').innerText = totalRounds;
-        document.getElementById('summary-time').innerText = `${m} perc ${s} mp`;
-        document.getElementById('summary-calories').innerText = `~${caloriesBurned} kcal`;
-
-        saveToHistory(caloriesBurned, `${m}:${s}`);
-        showScreen('summary-screen');
+        let elapsedSeconds = Math.floor((Date.now() - workoutStartTime) / 1000); let m = Math.floor(elapsedSeconds / 60); let s = elapsedSeconds % 60;
+        let totalMinutes = elapsedSeconds / 60; let caloriesBurned = Math.floor(0.14 * currentUser.weight * totalMinutes);
+        document.getElementById('summary-rounds').innerText = totalRounds; document.getElementById('summary-time').innerText = `${m} perc ${s} mp`; document.getElementById('summary-calories').innerText = `~${caloriesBurned} kcal`;
+        saveToHistory(caloriesBurned, `${m}:${s}`); saveToWeeklyTracker(); showScreen('summary-screen');
     }
 
-    function saveToHistory(cal, time) {
-        if(!currentUser) return;
-        const key = `ppp_history_${currentUser.id}`;
-        let history = JSON.parse(localStorage.getItem(key)) || [];
-        let date = new Date().toLocaleDateString('hu-HU') + " " + new Date().toLocaleTimeString('hu-HU', {hour: '2-digit', minute:'2-digit'});
-        history.unshift({ date: date, cal: cal, time: time }); 
-        if(history.length > 20) history.pop(); 
-        localStorage.setItem(key, JSON.stringify(history));
-    }
-
-    function loadHistory() {
-        if(!currentUser) return;
-        const key = `ppp_history_${currentUser.id}`;
-        let history = JSON.parse(localStorage.getItem(key)) || [];
-        let list = document.getElementById('history-list');
-        list.innerHTML = "";
-        
-        if(history.length === 0) {
-            list.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Még nincs mentett edzésed.</p>';
-            return;
-        }
-
-        history.forEach((item, index) => {
-            list.innerHTML += `
-            <div class="history-item">
-                <div class="history-info">
-                    <span class="history-date">📅 ${item.date}</span>
-                    <span class="history-stats">⏱️ ${item.time} | 🔥 ${item.cal} kcal</span>
-                </div>
-                <button class="btn-delete" onclick="deleteHistoryItem(${index}, 'workout')">🗑️</button>
-            </div>`;
+    function renderWeeklyTracker() {
+        if(!currentUser) return; const trackerContainer = document.getElementById('weekly-tracker'); const days =['H', 'K', 'Sze', 'Cs', 'P', 'Szo', 'V'];
+        const key = `ppp_weekly_${currentUser.id}`; let weeklyData = JSON.parse(localStorage.getItem(key)) || { weekId: "", days:[false, false, false, false, false, false, false] };
+        const currentWeekId = getWeekId(new Date());
+        if (weeklyData.weekId !== currentWeekId) { weeklyData = { weekId: currentWeekId, days:[false, false, false, false, false, false, false] }; localStorage.setItem(key, JSON.stringify(weeklyData)); }
+        const todayIndex = getDayIndex(new Date()); trackerContainer.innerHTML = "";
+        days.forEach((day, index) => {
+            let doneClass = weeklyData.days[index] ? 'done' : ''; let todayClass = (index === todayIndex && !weeklyData.days[index]) ? 'today' : ''; let content = weeklyData.days[index] ? '✓' : '';
+            trackerContainer.innerHTML += `<div class="day-circle"><div class="circle ${doneClass} ${todayClass}">${content}</div><span class="day-label" style="color: ${index === todayIndex ? 'var(--accent)' : 'var(--text-muted)'}">${day}</span></div>`;
         });
     }
 
-    // --- SÚLYNAPLÓ KEZELÉS (ÚJ) ---
-    
+    function saveToWeeklyTracker() {
+        if(!currentUser) return; const key = `ppp_weekly_${currentUser.id}`; let weeklyData = JSON.parse(localStorage.getItem(key)) || { weekId: getWeekId(new Date()), days:[false, false, false, false, false, false, false] };
+        const todayIndex = getDayIndex(new Date()); weeklyData.days[todayIndex] = true; localStorage.setItem(key, JSON.stringify(weeklyData)); renderWeeklyTracker();
+    }
+
+    function saveToHistory(cal, time) {
+        if(!currentUser) return; const key = `ppp_history_${currentUser.id}`; let history = JSON.parse(localStorage.getItem(key)) ||[]; let date = new Date().toLocaleDateString('hu-HU') + " " + new Date().toLocaleTimeString('hu-HU', {hour: '2-digit', minute:'2-digit'});
+        history.unshift({ date: date, cal: cal, time: time }); if(history.length > 20) history.pop(); localStorage.setItem(key, JSON.stringify(history));
+    }
+
+    function loadHistory() {
+        if(!currentUser) return; const key = `ppp_history_${currentUser.id}`; let history = JSON.parse(localStorage.getItem(key)) ||[];
+        let list = document.getElementById('history-list'); list.innerHTML = "";
+        if(history.length === 0) { list.innerHTML = '<p style="text-align: center; color: var(--text-muted); margin-top: 50px;">Még nincs mentett edzésed.</p>'; return; }
+        history.forEach((item, index) => { list.innerHTML += `<div class="history-item"><div class="history-info"><span class="history-date">📅 ${item.date}</span><span class="history-stats">⏱️ ${item.time} | 🔥 ${item.cal} kcal</span></div><button class="btn-delete" onclick="deleteHistoryItem(${index}, 'workout')">🗑️</button></div>`; });
+    }
+
     function saveWeightLog() {
-        if(!currentUser) return;
-        const weight = parseFloat(document.getElementById('user-weight').value);
-        if(!weight || weight <= 0) return;
-        
-        // Frissítjük a user súlyát is
-        updateUserWeight();
-        
-        // Mentés a naplóba
-        saveWeightToHistory(weight);
-        alert(`✅ Súly rögzítve: ${weight} kg`);
+        if(!currentUser) return; const weight = parseFloat(document.getElementById('user-weight').value);
+        if(!weight || weight <= 0) return; updateUserWeight(); saveWeightToHistory(weight); alert(`✅ Súly rögzítve: ${weight} kg`);
     }
 
     function saveWeightToHistory(weight) {
-        if(!currentUser) return;
-        const key = `ppp_weight_history_${currentUser.id}`;
-        let history = JSON.parse(localStorage.getItem(key)) || [];
-        let date = new Date().toLocaleDateString('hu-HU');
-        
-        // Csak akkor mentünk újat, ha a mai napon még nincs, VAGY ha felül akarjuk írni (egyszerűsítés: mindig új bejegyzés az elejére)
-        history.unshift({ date: date, weight: weight });
-        
-        localStorage.setItem(key, JSON.stringify(history));
+        if(!currentUser) return; const key = `ppp_weight_history_${currentUser.id}`; let history = JSON.parse(localStorage.getItem(key)) ||[]; let date = new Date().toLocaleDateString('hu-HU');
+        history.unshift({ date: date, weight: weight }); localStorage.setItem(key, JSON.stringify(history));
     }
 
+    // --- CHART.JS GRAFIKON KIRAJZOLÁSA ÉS SÚLYNAPLÓ LISTA ---
     function loadWeightHistory() {
-        if(!currentUser) return;
-        const key = `ppp_weight_history_${currentUser.id}`;
-        let history = JSON.parse(localStorage.getItem(key)) || [];
-        let list = document.getElementById('weight-history-list');
+        if(!currentUser) return; 
+        const key = `ppp_weight_history_${currentUser.id}`; 
+        let history = JSON.parse(localStorage.getItem(key)) ||[];
+        let list = document.getElementById('weight-history-list'); 
+        let chartContainer = document.getElementById('weight-chart-container');
+        
         list.innerHTML = "";
         
-        if(history.length === 0) {
-            list.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Még nincs mért súly adatod.</p>';
-            return;
+        if(history.length === 0) { 
+            list.innerHTML = '<p style="text-align: center; color: var(--text-muted); margin-top: 50px;">Még nincs mért súly adatod.</p>'; 
+            chartContainer.style.display = 'none'; // Elrejtjük a grafikont ha nincs adat
+            return; 
         }
 
-        // Feldolgozás a változásokhoz (hátulról előre, mert az elején van a legfrissebb)
-        // De a megjelenítés fentről lefelé (legfrissebb elöl).
-        // A változáshoz az utána következő elemmel (ami időben előbbi) kell összehasonlítani.
+        // --- GRAFIKON ADATOK ELŐKÉSZÍTÉSE ---
+        // A tömb jelenleg csökkenő sorrendben van (legfrissebb legelöl). 
+        // A grafikonhoz meg kell fordítani, hogy balról jobbra (időben előre) haladjon.
+        let chartData = [...history].reverse();
         
-        history.forEach((item, index) => {
-            let changeHtml = '<span class="weight-change weight-same">-</span>';
+        // Csak az utolsó 10 bejegyzést mutatjuk a grafikonon, hogy ne legyen zsúfolt
+        if(chartData.length > 10) {
+            chartData = chartData.slice(chartData.length - 10);
+        }
+
+        let labels = chartData.map(item => {
+            // Rövidített dátum pl. "10.15" év nélkül
+            let d = item.date.split('. ');
+            return d.length >= 2 ? `${d[1]}. ${d[2] ? d[2].replace('.','') : ''}` : item.date;
+        });
+        let dataPoints = chartData.map(item => item.weight);
+
+        // --- GRAFIKON MEGJELENÍTÉSE ---
+        if(history.length > 1) {
+            chartContainer.style.display = 'block'; // Ha van legalább 2 adat, mutatjuk
             
-            // Ha van előző mérés (ami a tömbben a KÖVETKEZŐ index, mert fordított sorrend)
-            if (index < history.length - 1) {
-                let prevWeight = history[index + 1].weight;
-                let diff = item.weight - prevWeight;
-                
-                if (diff < 0) {
-                    changeHtml = `<span class="weight-change weight-down">🔻 ${diff.toFixed(1)} kg</span>`;
-                } else if (diff > 0) {
-                    changeHtml = `<span class="weight-change weight-up">🔺 +${diff.toFixed(1)} kg</span>`;
-                } else {
-                    changeHtml = `<span class="weight-change weight-same">➖ Változatlan</span>`;
-                }
+            const ctx = document.getElementById('weightChart').getContext('2d');
+            
+            // Ha már van létező grafikon, megsemmisítjük rajzolás előtt
+            if(weightChartInstance) {
+                weightChartInstance.destroy();
             }
 
-            list.innerHTML += `
-            <div class="history-item">
-                <div class="history-info">
-                    <span class="history-date">📅 ${item.date}</span>
-                    <span class="history-stats" style="font-size: 16px; color: white;">⚖️ ${item.weight} kg ${changeHtml}</span>
-                </div>
-                <button class="btn-delete" onclick="deleteHistoryItem(${index}, 'weight')">🗑️</button>
-            </div>`;
+            // Kék gradiens a vonal alá
+            let gradient = ctx.createLinearGradient(0, 0, 0, 200);
+            gradient.addColorStop(0, 'rgba(10, 132, 255, 0.4)'); // --accent szín átlátszóan
+            gradient.addColorStop(1, 'rgba(10, 132, 255, 0.0)');
+
+            weightChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets:[{
+                        label: 'Súly (kg)',
+                        data: dataPoints,
+                        borderColor: '#0a84ff', // --accent
+                        backgroundColor: gradient,
+                        borderWidth: 3,
+                        pointBackgroundColor: '#1c1c1e',
+                        pointBorderColor: '#0a84ff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        fill: true,
+                        tension: 0.3 // Görbített vonalak
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }, // Ne mutassa a "Súly (kg)" feliratot felül
+                        tooltip: {
+                            backgroundColor: '#2c2c2e',
+                            titleColor: '#8e8e93',
+                            bodyColor: '#ffffff',
+                            bodyFont: { size: 16, weight: 'bold' },
+                            displayColors: false,
+                            padding: 10,
+                            callbacks: {
+                                label: function(context) { return context.parsed.y + ' kg'; }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false, drawBorder: false },
+                            ticks: { color: '#8e8e93', font: {size: 10} }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false },
+                            ticks: { color: '#8e8e93', padding: 10 },
+                            // Hogy ne a nulláról induljon a grafikon, hanem a súlyok körül skálázzon
+                            suggestedMin: Math.min(...dataPoints) - 2,
+                            suggestedMax: Math.max(...dataPoints) + 2
+                        }
+                    },
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                }
+            });
+        } else {
+            chartContainer.style.display = 'none'; // 1 adatnál nincs vonal
+        }
+
+        // --- LISTA GENERÁLÁSA ---
+        history.forEach((item, index) => {
+            let changeHtml = '<span class="weight-change weight-same">-</span>';
+            if (index < history.length - 1) {
+                let prevWeight = history[index + 1].weight; let diff = item.weight - prevWeight;
+                if (diff < 0) { changeHtml = `<span class="weight-change weight-down">🔻 ${diff.toFixed(1)} kg</span>`; } 
+                else if (diff > 0) { changeHtml = `<span class="weight-change weight-up">🔺 +${diff.toFixed(1)} kg</span>`; } 
+                else { changeHtml = `<span class="weight-change weight-same">➖ Változatlan</span>`; }
+            }
+            list.innerHTML += `<div class="history-item"><div class="history-info"><span class="history-date">📅 ${item.date}</span><span class="history-stats" style="font-size: 16px; color: white;">⚖️ ${item.weight} kg ${changeHtml}</span></div><button class="btn-delete" onclick="deleteHistoryItem(${index}, 'weight')">🗑️</button></div>`;
         });
     }
 
